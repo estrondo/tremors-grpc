@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package webapi;
+
 service AccountService {
   rpc Activate(AccountActivation) returns (AccountReponse);
   rpc Create(Account) returns (AccountReponse);

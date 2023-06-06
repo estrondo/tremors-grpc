@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package toph;
+
 service SpatialService {
   rpc SearchEvent(EventQuery) returns (stream Event);
 }
