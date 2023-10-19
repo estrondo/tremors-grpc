@@ -1,2 +1,3 @@
-# tremors-grpc
-All tremors grpc protocols.
+# Tremors gRPC.
+
+

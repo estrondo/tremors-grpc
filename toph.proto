@@ -2,44 +2,106 @@ syntax = "proto3";
 
 package toph;
 
-service SpatialService {
-  rpc SearchEvent(EventQuery) returns (stream Event);
+service UserService {
+  rpc Update(UpdateUser) returns (User);
 }
 
-message EventQuery {
-  repeated double boundary = 1;
-  optional double boundaryRadius = 2;
-  optional string startTime = 3;
-  optional string endTime = 4;
-  optional double minDepth = 5;
-  optional double maxDepth = 6;
-  optional double minMagnitude = 7;
-  optional double maxMagnitude = 8;
-  repeated string magnitudeType = 9;
+service NotifyService {
+  rpc Add(Notification) returns (IdentifiedNotification);
+  rpc Remove(NotificationId) returns (IdentifiedNotification);
+  rpc Update(IdentifiedNotification) returns (IdentifiedNotification);
+  rpc Search(NotificationQuery) returns (stream IdentifiedNotification);
+}
+
+service SpatialService {
+  rpc SearchEvent(stream Camera) returns (stream Event);
+}
+
+message User {
+  string name = 1;
+  string email = 2;
+}
+
+message UpdateUser {
+  string name = 1;
+}
+
+message Notification {
+
+  message DataFilter {
+    optional double max_magnitude = 1;
+    optional double min_magnitude = 2;
+    repeated string magnitude_type = 3;
+    repeated string event_type = 4;
+  };
+
+  message SpatialFilter {
+    optional string description = 1;
+    repeated double boundary = 2;
+    optional double min_depth = 3;
+    optional double max_depth = 4;
+  }
+
+  enum DestinationType {
+    DESTINATION_EMAIL = 0;
+    DESTINATION_WHATSAPP = 1;
+    DESTINATION_TELEGRAM = 2;
+  }
+
+  message Destination {
+    string name = 1;
+    string location = 2;
+    DestinationType type = 3;
+  }
+
+  repeated Destination destination = 1;
+  repeated DataFilter data_filter = 2;
+  repeated SpatialFilter spatial_filter = 3;
+
+}
+
+message NotificationId {
+  string id = 1;
+}
+
+message IdentifiedNotification {
+  string id = 1;
+  Notification notification = 2;
+}
+
+message NotificationQuery {
+  repeated string queries = 1;
+}
+
+
+// based on http://www.itowns-project.org/itowns/docs/#api/Controls/CameraUtils
+message Camera {
+  repeated double coordinate = 1; // longitude, latitude
+  double tilt = 2;
+  double heading = 3;
+  int32 range = 4;
 }
 
 message Event {
-  string key = 1;
-  string eventKey = 2;
-  optional string hypocentreKey = 3;
-  optional string magnitudeKey = 4;
-  optional string eventType = 5;
-  repeated double position = 6;
-  repeated double positionUncertainty = 7;
-  optional double depth = 8;
-  optional double depthUncertainty = 9;
-  optional string time = 10;
-  optional int32 timeUncertainty = 11;
-  optional int32 stationCount = 12;
-  optional double magnitude = 13;
-  optional string magnitudeType = 14;
-  optional CreationInfo creationInfo = 15;
-}
 
-message CreationInfo {
-  optional string agencyID = 1;
-  optional string agencyURI = 2;
-  optional string author = 3;
-  optional string creationTime = 4;
-  optional string version = 5;
+  message Origin {
+    string id = 1;
+    repeated double position = 2; // longitude, latitude, depth?
+    repeated double position_uncertainty = 3;
+    int64 time = 4;
+    optional int32 time_uncertainty = 5;
+  }
+
+  message Magnitude {
+    string id = 1;
+    double mag = 2;
+    optional double mag_uncertainty = 3;
+    optional string type = 4;
+    optional int32 station_count = 5;
+  }
+
+  string id = 1;
+  optional string type = 2;
+  repeated Origin origins = 3;
+  repeated Magnitude magnitudes = 4;
 }
