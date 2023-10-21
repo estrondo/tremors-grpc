@@ -14,7 +14,7 @@ service NotifyService {
 }
 
 service SpatialService {
-  rpc SearchEvent(stream Camera) returns (stream Event);
+  rpc ViewEvent(stream Camera) returns (stream Event);
 }
 
 message User {
