@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package webapi.v1;
+
+message AuthenticationRequest {
+  string provider = 1;
+  string token = 2;
+  string version = 3;
+}
+
+message AuthenticationResponse {
+  string email = 1;
+  string name = 2;
+  string token = 3;
+  string version = 4;
+  bytes configuration = 5;
+  bytes meta = 6;
+}
+
+service SecurityService {
+
+  rpc Authenticate(AuthenticationRequest) returns (AuthenticationResponse);
+}
