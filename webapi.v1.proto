@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package webapi.v1;
+
+message AuthorisationRequest {
+  string version = 1;
+  string provider = 2;
+  string token = 3;
+}
+
+message Error {
+  string version = 1;
+  string code = 2;
+  string message = 3;
+  string description = 4;
+  map<string, string> properties = 5;
+}
+
+message AuthorisationResponse {
+  string version = 1;
+  oneof content {
+    AuthorisationSuccess success = 2;
+    Error error = 3;
+  }
+}
+
+message AuthorisationSuccess {
+  string version = 1;
+  string token = 2;
+  string email = 3;
+  string name = 4;
+  bytes configuration = 5;
+  bytes meta = 6;
+}
+
+service SecurityService {
+
+  rpc Authorise(AuthorisationRequest) returns (AuthorisationResponse);
+}
