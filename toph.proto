@@ -2,106 +2,27 @@ syntax = "proto3";
 
 package toph;
 
-service UserService {
-  rpc Update(UpdateUser) returns (User);
+service AccountService {
+  rpc Update(GRPCUpdateAccount) returns (GRPCAccount);
 }
 
-service NotifyService {
-  rpc Add(Notification) returns (IdentifiedNotification);
-  rpc Remove(NotificationId) returns (IdentifiedNotification);
-  rpc Update(IdentifiedNotification) returns (IdentifiedNotification);
-  rpc Search(NotificationQuery) returns (stream IdentifiedNotification);
-}
-
-service SpatialService {
-  rpc ViewEvent(stream Camera) returns (stream Event);
-}
-
-message User {
+message GRPCAccount {
   string name = 1;
   string email = 2;
 }
 
-message UpdateUser {
+message GRPCUpdateAccount {
   string name = 1;
 }
 
-message Notification {
+service SecurityService {
+  rpc Authorise(GRPCAuthorisationRequest) returns (GRPCAuthorisationResponse);
+}
 
-  message DataFilter {
-    optional double max_magnitude = 1;
-    optional double min_magnitude = 2;
-    repeated string magnitude_type = 3;
-    repeated string event_type = 4;
-  };
-
-  message SpatialFilter {
-    optional string description = 1;
-    repeated double boundary = 2;
-    optional double min_depth = 3;
-    optional double max_depth = 4;
-  }
-
-  enum DestinationType {
-    DESTINATION_EMAIL = 0;
-    DESTINATION_WHATSAPP = 1;
-    DESTINATION_TELEGRAM = 2;
-  }
-
-  message Destination {
-    string name = 1;
-    string location = 2;
-    DestinationType type = 3;
-  }
-
-  repeated Destination destination = 1;
-  repeated DataFilter data_filter = 2;
-  repeated SpatialFilter spatial_filter = 3;
+message  GRPCAuthorisationRequest {
 
 }
 
-message NotificationId {
-  string id = 1;
-}
+message  GRPCAuthorisationResponse {
 
-message IdentifiedNotification {
-  string id = 1;
-  Notification notification = 2;
-}
-
-message NotificationQuery {
-  repeated string queries = 1;
-}
-
-
-// based on http://www.itowns-project.org/itowns/docs/#api/Controls/CameraUtils
-message Camera {
-  repeated double coordinate = 1; // longitude, latitude
-  double tilt = 2;
-  double heading = 3;
-  int32 range = 4;
-}
-
-message Event {
-
-  message Origin {
-    string id = 1;
-    repeated double position = 2; // longitude, latitude, depth?
-    repeated double position_uncertainty = 3;
-    int64 time = 4;
-    optional int32 time_uncertainty = 5;
-  }
-
-  message Magnitude {
-    string id = 1;
-    double mag = 2;
-    optional double mag_uncertainty = 3;
-    optional string type = 4;
-    optional int32 station_count = 5;
-  }
-
-  string id = 1;
-  optional string type = 2;
-  repeated Origin origins = 3;
-  repeated Magnitude magnitudes = 4;
 }
