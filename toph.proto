@@ -20,9 +20,16 @@ service SecurityService {
 }
 
 message  GRPCAuthorisationRequest {
+  oneof sealed_value {
+    GRPCOpenIdTokenAuthorisationRequest openid = 1;
+  }
+}
 
+message GRPCOpenIdTokenAuthorisationRequest {
+  string provider = 1;
+  string token = 2;
 }
 
 message  GRPCAuthorisationResponse {
-
+  string token = 1;
 }
