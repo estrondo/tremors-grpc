@@ -7,8 +7,9 @@ service AccountService {
 }
 
 message GRPCAccount {
-  string name = 1;
-  string email = 2;
+  string key = 1;
+  string name = 2;
+  string email = 3;
 }
 
 message GRPCUpdateAccount {
@@ -26,10 +27,12 @@ message  GRPCAuthorisationRequest {
 }
 
 message GRPCOpenIdTokenAuthorisationRequest {
-  string provider = 1;
-  string token = 2;
+  string version = 1;
+  string provider = 2;
+  bytes token = 3;
 }
 
 message  GRPCAuthorisationResponse {
-  string token = 1;
+  string version = 1;
+  bytes token = 2;
 }
