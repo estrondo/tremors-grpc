@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package toph.v1;
 
-service AccountService {
-  rpc Update(GrpcUpdateAccount) returns (GrpcAccount);
-}
+service AccountService { rpc Update(GrpcUpdateAccount) returns (GrpcAccount); }
 
 message GrpcAccount {
   string key = 1;
@@ -12,18 +10,15 @@ message GrpcAccount {
   string email = 3;
 }
 
-message GrpcUpdateAccount {
-  string name = 1;
-}
+message GrpcUpdateAccount { string name = 1; }
 
 service SecurityService {
   rpc Authorise(GrpcAuthorisationRequest) returns (GrpcAuthorisationResponse);
+  rpc Refresh(GrpcRefreshAuthorisation) returns (GrpcAuthorisationResponse);
 }
 
-message  GrpcAuthorisationRequest {
-  oneof sealed_value {
-    GrpcOpenIdTokenAuthorisationRequest openid = 1;
-  }
+message GrpcAuthorisationRequest {
+  oneof sealed_value { GrpcOpenIdTokenAuthorisationRequest openid = 1; }
 }
 
 message GrpcOpenIdTokenAuthorisationRequest {
@@ -31,6 +26,12 @@ message GrpcOpenIdTokenAuthorisationRequest {
   string token = 2;
 }
 
-message  GrpcAuthorisationResponse {
+message GrpcAuthorisationResponse {
   bytes token = 1;
+  string refresh_token = 2;
+}
+
+message GrpcRefreshAuthorisation {
+  bytes token = 1;
+  string refresh_token = 2;
 }
