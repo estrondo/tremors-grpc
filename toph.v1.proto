@@ -24,6 +24,7 @@ message GrpcAuthorisationRequest {
 message GrpcOpenIdTokenAuthorisationRequest {
   string provider = 1;
   string token = 2;
+  string device = 3;
 }
 
 message GrpcAuthorisationResponse {
@@ -34,4 +35,5 @@ message GrpcAuthorisationResponse {
 message GrpcRefreshAuthorisation {
   bytes token = 1;
   string refresh_token = 2;
+  string device = 3;
 }
