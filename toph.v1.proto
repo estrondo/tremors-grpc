@@ -28,7 +28,7 @@ message GrpcOpenIdTokenAuthorisationRequest {
 }
 
 message GrpcAuthorisationResponse {
-  bytes token = 1;
+  bytes access_token = 1;
   string refresh_token = 2;
 }
 
