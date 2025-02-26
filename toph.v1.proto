@@ -4,6 +4,17 @@ package toph.v1;
 
 service AccountService { rpc Update(GrpcUpdateAccount) returns (GrpcAccount); }
 
+service ObjectStorageService {
+  rpc System(stream GrpcObjectReadRequest)
+      returns (stream GrpcObjectReadResponse);
+  rpc User(stream GrpcObjectRequest) returns (stream GrpcObjectResponse);
+}
+
+service SecurityService {
+  rpc Authorise(GrpcAuthorisationRequest) returns (GrpcAuthorisationResponse);
+  rpc Refresh(GrpcRefreshAuthorisation) returns (GrpcAuthorisationResponse);
+}
+
 message GrpcAccount {
   string key = 1;
   string name = 2;
@@ -11,11 +22,6 @@ message GrpcAccount {
 }
 
 message GrpcUpdateAccount { string name = 1; }
-
-service SecurityService {
-  rpc Authorise(GrpcAuthorisationRequest) returns (GrpcAuthorisationResponse);
-  rpc Refresh(GrpcRefreshAuthorisation) returns (GrpcAuthorisationResponse);
-}
 
 message GrpcAuthorisationRequest {
   oneof sealed_value { GrpcOpenIdTokenAuthorisationRequest openid = 1; }
@@ -36,4 +42,112 @@ message GrpcRefreshAuthorisation {
   bytes token = 1;
   string refresh_token = 2;
   string device = 3;
+}
+
+message GrpcObjectRequest {
+  oneof request {
+    GrpcObjectWriteRequest write = 1;
+    GrpcObjectReadRequest read = 2;
+  }
+}
+
+message GrpcObjectResponse {
+  oneof response {
+    GrpcObjectWriteResponse write = 1;
+    GrpcObjectReadResponse read = 2;
+  }
+}
+
+message GrpcObjectWriteResponse {
+  oneof sealed_value {
+    GrpcObjectWriteError error = 1;
+    GrpcObjectWriteFullContentResponse full_content = 2;
+    GrpcObjectDeleteResponse delete = 3;
+  }
+}
+
+message GrpcObjectReadResponse {
+  oneof sealed_value {
+    GrpcObjectReadError error = 1;
+    GrpcObjectReadFullContentResponse full_content = 2;
+  }
+}
+
+message GrpcObjectWriteError {
+  string path = 1;
+  int32 code = 2;
+  string message = 3;
+}
+
+message GrpcObjectReadError {
+  string path = 1;
+  int32 code = 2;
+  string message = 3;
+}
+
+message GrpcObjectWriteRequest {
+  oneof sealed_value {
+    GrpcObjectWriteFullContentRequest full_content = 1;
+    GrpcObjectDeleteRequest delete = 2;
+  }
+}
+
+message GrpcObjectWriteFullContentRequest {
+  string path = 1;
+  bytes content = 2;
+  bool should_read_content = 3;
+}
+
+message GrpcObjectWriteFullContentResponse {
+  string path = 1;
+  bytes content = 2;
+}
+
+message GrpcObjectReadRequest {
+  oneof sealed_value {
+    GrpcObjectReadFullContentRequest full_content = 1;
+    GrpcObjectListRequest list = 2;
+  }
+}
+
+message GrpcObjectReadFullContentRequest { string path = 1; }
+
+message GrpcObjectReadFullContentResponse {
+  string path = 1;
+  bytes content = 2;
+}
+
+message GrpcObjectDeleteRequest {
+  string path = 1;
+  bool should_read_content = 2;
+}
+
+message GrpcObjectDeleteResponse {
+  string path = 1;
+  GrpcObjectItemKind kind = 2;
+  oneof content {
+    GrpcObjectListResponse list = 3;
+    GrpcObjectReadFullContentResponse full_content = 4;
+  }
+}
+
+message GrpcObjectListRequest { string path = 1; }
+
+message GrpcObjectListResponse {
+  string path = 1;
+  repeated GrpcObjectItem items = 2;
+}
+
+enum GrpcObjectItemKind {
+  GRPC_OBJECT_ITEM_KIND_UNKNOWN = 0;
+  GRPC_OBJECT_ITEM_KIND_OBJECT = 1;
+  GRPC_OBJECT_ITEM_KIND_FOLDER = 2;
+}
+
+message GrpcObjectItem {
+  string path = 1;
+  string name = 2;
+  GrpcObjectItemKind kind = 3;
+  int64 createdAt = 4;
+  int64 updatedAt = 5;
 }
