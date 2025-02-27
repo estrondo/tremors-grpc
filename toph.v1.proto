@@ -46,30 +46,50 @@ message GrpcRefreshAuthorisation {
 
 message GrpcObjectRequest {
   oneof request {
-    GrpcObjectWriteRequest write = 1;
-    GrpcObjectReadRequest read = 2;
+    GrpcObjectWrite.Request write = 1;
+    GrpcObjectRead.Request read = 2;
   }
 }
 
 message GrpcObjectResponse {
   oneof response {
-    GrpcObjectWriteResponse write = 1;
-    GrpcObjectReadResponse read = 2;
+    GrpcObjectWrite.Response write = 1;
+    GrpcObjectRead.Response read = 2;
   }
 }
 
-message GrpcObjectWriteResponse {
-  oneof sealed_value {
-    GrpcObjectWriteError error = 1;
-    GrpcObjectWriteFullContentResponse full_content = 2;
-    GrpcObjectDeleteResponse delete = 3;
+message GrpcObjectWrite {
+
+  message Request {
+    oneof sealed_value {
+      GrpcObjectWriteFullContentRequest full_content = 1;
+      GrpcObjectDeleteRequest delete = 2;
+    }
+  }
+
+  message Response {
+    oneof sealed_value {
+      GrpcObjectWriteError error = 1;
+      GrpcObjectWriteFullContentResponse full_content = 2;
+      GrpcObjectDeleteResponse delete = 3;
+    }
   }
 }
 
-message GrpcObjectReadResponse {
-  oneof sealed_value {
-    GrpcObjectReadError error = 1;
-    GrpcObjectReadFullContentResponse full_content = 2;
+message GrpcObjectRead {
+
+  message Request {
+    oneof sealed_value {
+      GrpcObjectReadFullContentRequest full_content = 1;
+      GrpcObjectListRequest list = 2;
+    }
+  }
+
+  message Response {
+    oneof sealed_value {
+      GrpcObjectReadError error = 1;
+      GrpcObjectReadFullContentResponse full_content = 2;
+    }
   }
 }
 
@@ -85,13 +105,6 @@ message GrpcObjectReadError {
   string message = 3;
 }
 
-message GrpcObjectWriteRequest {
-  oneof sealed_value {
-    GrpcObjectWriteFullContentRequest full_content = 1;
-    GrpcObjectDeleteRequest delete = 2;
-  }
-}
-
 message GrpcObjectWriteFullContentRequest {
   string path = 1;
   bytes content = 2;
@@ -101,13 +114,6 @@ message GrpcObjectWriteFullContentRequest {
 message GrpcObjectWriteFullContentResponse {
   string path = 1;
   bytes content = 2;
-}
-
-message GrpcObjectReadRequest {
-  oneof sealed_value {
-    GrpcObjectReadFullContentRequest full_content = 1;
-    GrpcObjectListRequest list = 2;
-  }
 }
 
 message GrpcObjectReadFullContentRequest { string path = 1; }
