@@ -5,9 +5,9 @@ package toph.v1;
 service AccountService { rpc Update(GrpcUpdateAccount) returns (GrpcAccount); }
 
 service ObjectStorageService {
-  rpc System(stream GrpcObjectReadRequest)
-      returns (stream GrpcObjectReadResponse);
-  rpc User(stream GrpcObjectRequest) returns (stream GrpcObjectResponse);
+  rpc System(stream GrpcObject.ReadRequest)
+      returns (stream GrpcObject.Response);
+  rpc User(stream GrpcObject.Request) returns (stream GrpcObject.Response);
 }
 
 service SecurityService {
@@ -44,110 +44,142 @@ message GrpcRefreshAuthorisation {
   string device = 3;
 }
 
-message GrpcObjectRequest {
-  oneof request {
-    GrpcObjectWriteRequest write = 1;
-    GrpcObjectReadRequest read = 2;
+message GrpcObject {
+
+  // keep in mind:
+  // Request => Response
+  // Operation => Result
+
+  message Request {
+    oneof content {
+      ReadRequest read_request = 1;
+      UpdateRequest update_request = 2;
+    }
   }
-}
 
-message GrpcObjectResponse {
-  oneof response {
-    GrpcObjectWriteResponse write = 1;
-    GrpcObjectReadResponse read = 2;
+  message ReadRequest {
+    string id = 1;
+    repeated ReadOperation operations = 2;
   }
-}
 
-message GrpcObjectWriteResponse {
-  oneof sealed_value {
-    GrpcObjectWriteError error = 1;
-    GrpcObjectWriteFullContentResponse full_content = 2;
-    GrpcObjectDeleteResponse delete = 3;
+  message UpdateRequest {
+    string id = 1;
+    repeated UpdateOperation operations = 2;
   }
-}
 
-message GrpcObjectReadResponse {
-  oneof sealed_value {
-    GrpcObjectReadError error = 1;
-    GrpcObjectReadFullContentResponse full_content = 2;
+  message UpdateOperation {
+    oneof content {
+      UpdateObjectOperation update_object = 1;
+      RemoveObjectOperation remove_object = 2;
+      RemoveFolderOperation remove_folder = 3;
+    }
   }
-}
 
-message GrpcObjectWriteError {
-  string path = 1;
-  int32 code = 2;
-  string message = 3;
-}
-
-message GrpcObjectReadError {
-  string path = 1;
-  int32 code = 2;
-  string message = 3;
-}
-
-message GrpcObjectWriteRequest {
-  oneof sealed_value {
-    GrpcObjectWriteFullContentRequest full_content = 1;
-    GrpcObjectDeleteRequest delete = 2;
+  message ReadOperation {
+    oneof content {
+      FetchObjectOperation fetch_object = 1;
+      FetchFolderOperation fetch_folder = 2;
+    }
   }
-}
 
-message GrpcObjectWriteFullContentRequest {
-  string path = 1;
-  bytes content = 2;
-  bool should_read_content = 3;
-}
-
-message GrpcObjectWriteFullContentResponse {
-  string path = 1;
-  bytes content = 2;
-}
-
-message GrpcObjectReadRequest {
-  oneof sealed_value {
-    GrpcObjectReadFullContentRequest full_content = 1;
-    GrpcObjectListRequest list = 2;
+  message Response {
+    string id = 1;
+    repeated Result results = 2;
   }
-}
 
-message GrpcObjectReadFullContentRequest { string path = 1; }
-
-message GrpcObjectReadFullContentResponse {
-  string path = 1;
-  bytes content = 2;
-}
-
-message GrpcObjectDeleteRequest {
-  string path = 1;
-  bool should_read_content = 2;
-}
-
-message GrpcObjectDeleteResponse {
-  string path = 1;
-  GrpcObjectItemKind kind = 2;
-  oneof content {
-    GrpcObjectListResponse list = 3;
-    GrpcObjectReadFullContentResponse full_content = 4;
+  message UpdateObjectOperation {
+    string id = 1;
+    string name = 2;
+    string folder = 3;
+    bool should_return_content = 4;
+    string content_type = 5;
+    bytes content = 6;
   }
-}
 
-message GrpcObjectListRequest { string path = 1; }
+  message RemoveObjectOperation {
+    string id = 1;
+    string folder = 2;
+    string name = 3;
+    bool should_return_content = 4;
+  }
 
-message GrpcObjectListResponse {
-  string path = 1;
-  repeated GrpcObjectItem items = 2;
-}
+  message RemoveFolderOperation {
+    string id = 1;
+    string name = 2;
+    bool should_return_content = 3;
+  }
 
-enum GrpcObjectItemKind {
-  GRPC_OBJECT_ITEM_KIND_UNKNOWN = 0;
-  GRPC_OBJECT_ITEM_KIND_OBJECT = 1;
-  GRPC_OBJECT_ITEM_KIND_FOLDER = 2;
-}
+  message FetchObjectOperation {
+    string id = 1;
+    string name = 2;
+    string folder = 3;
+  }
 
-message GrpcObjectItem {
-  string path = 1;
-  string name = 2;
-  GrpcObjectItemKind kind = 3;
-  int64 createdAt = 4;
-  int64 updatedAt = 5;
+  message FetchFolderOperation {
+    string id = 1;
+    string name = 2;
+  }
+
+  message Result {
+    oneof content {
+      Error error = 1;
+      FetchObjectResult fetch_object = 2;
+      FetchFolderResult fetch_folder = 3;
+      UpdateObjectResult update_object = 4;
+      RemoveObjectResult remove_object = 5;
+      RemoveFolderResult remove_folder = 6;
+    }
+  }
+
+  message Error {
+    string id = 1;
+    string code = 2;
+    string message = 3;
+    repeated string causes = 4;
+  }
+
+  message FetchObjectResult {
+    string id = 1;
+    string name = 2;
+    string folder = 3;
+    string content_type = 4;
+    bool exists = 5;
+    bytes content = 6;
+  }
+
+  message FetchFolderResult {
+    string id = 1;
+    string name = 2;
+    repeated Item items = 4;
+  }
+
+  message Item {
+    string name = 1;
+    string folder = 2;
+    string content_type = 3;
+    int64 created_at = 4;
+    int64 updated_at = 5;
+  }
+
+  message UpdateObjectResult {
+    string id = 1;
+    string name = 2;
+    string folder = 3;
+    string content_type = 4;
+    bytes content = 5;
+  }
+
+  message RemoveObjectResult {
+    string id = 1;
+    string name = 2;
+    string folder = 3;
+    bool existed = 4;
+    bytes content = 5;
+  }
+
+  message RemoveFolderResult {
+    string id = 1;
+    string name = 2;
+    repeated Item items = 3;
+  }
 }
