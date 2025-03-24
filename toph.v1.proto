@@ -44,6 +44,7 @@ message GrpcRefreshAuthorisation {
   string device = 3;
 }
 
+// Object Storage Context.
 message GrpcObject {
 
   // keep in mind:
