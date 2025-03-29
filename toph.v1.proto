@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package toph.v1;
 
-service AccountService { rpc Update(GrpcUpdateAccount) returns (GrpcAccount); }
+service AccountService {rpc Update(GrpcUpdateAccount) returns (GrpcAccount);}
 
 service ObjectStorageService {
   rpc System(stream GrpcObject.ReadRequest)
@@ -21,10 +21,10 @@ message GrpcAccount {
   string email = 3;
 }
 
-message GrpcUpdateAccount { string name = 1; }
+message GrpcUpdateAccount {string name = 1;}
 
 message GrpcAuthorisationRequest {
-  oneof sealed_value { GrpcOpenIdTokenAuthorisationRequest openid = 1; }
+  oneof sealed_value {GrpcOpenIdTokenAuthorisationRequest openid = 1;}
 }
 
 message GrpcOpenIdTokenAuthorisationRequest {
@@ -182,5 +182,66 @@ message GrpcObject {
     string id = 1;
     string name = 2;
     repeated Item items = 3;
+  }
+}
+
+service EarthquakeService {
+  rpc Search(stream GrpcEarthquake.Query) returns (stream GrpcEarthquake.QueryResponse);
+}
+
+message GrpcEarthquake {
+
+  message  Query {
+    string id = 1;
+    repeated Filter filter = 2;
+  }
+
+  message QueryResponse {
+    oneof content {
+      Error error = 1;
+      Event event = 2;
+    }
+  }
+
+  message Filter {
+    string id = 1;
+    double min_magnitude = 2;
+    double max_magnitude = 3;
+    int64 start_timestamp = 4;
+    int64 end_timestamp = 5;
+    string magnitude_type = 6;
+    int32 min_depth = 7; // m
+    int32 max_depth = 8;  // m
+    repeated double boundary = 9; // 2D lon,lat
+    int32 buffer = 10;  // m
+  }
+
+  message Error {
+    string id = 1;
+    string query_id = 2;
+    string filter_id = 3;
+    string kind = 4;
+    string message = 5;
+  }
+
+  message Event {
+    string id = 1;
+    string query_id = 2;
+    string filter_id = 3;
+    double magnitude = 4;
+    double magnitude_uncertainty = 5;
+    string magnitude_type = 6;
+    repeated double epicenter = 7; // [lon,lat]
+    repeated double epicenter_uncertainty = 8; // [lon,lat]
+    int32 depth = 9;
+    int32 depth_uncertainty = 10;
+    int64 timestamp = 11; // seconds
+
+    int64 created_at = 12; // seconds
+    string author = 13;
+    string author_url = 14;
+    string agency_id = 15;
+    string agency_url = 16;
+
   }
 }
