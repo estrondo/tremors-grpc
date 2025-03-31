@@ -205,14 +205,14 @@ message GrpcEarthquake {
 
   message Filter {
     string id = 1;
-    double min_magnitude = 2;
-    double max_magnitude = 3;
+    float min_magnitude = 2;
+    float max_magnitude = 3;
     int64 start_timestamp = 4;
     int64 end_timestamp = 5;
     string magnitude_type = 6;
     int32 min_depth = 7; // m
     int32 max_depth = 8;  // m
-    repeated double boundary = 9; // 2D lon,lat
+    repeated float boundary = 9; // 2D lon,lat
     int32 buffer = 10;  // m
   }
 
@@ -228,16 +228,18 @@ message GrpcEarthquake {
     string id = 1;
     string query_id = 2;
     string filter_id = 3;
-    double magnitude = 4;
-    double magnitude_uncertainty = 5;
-    string magnitude_type = 6;
-    repeated double epicenter = 7; // [lon,lat]
-    repeated double epicenter_uncertainty = 8; // [lon,lat]
-    int32 depth = 9;
-    int32 depth_uncertainty = 10;
-    int64 timestamp = 11; // seconds
 
+    float magnitude = 4;
+    float magnitude_uncertainty = 5;
+    string magnitude_type = 6;
+
+    repeated float epicenter = 7; // [lon,lat]
+    repeated float epicenter_uncertainty = 8; // [lon,lat]
+
+    int32 depth = 9; // meters
+    int32 depth_uncertainty = 10;
     int64 created_at = 12; // seconds
+    sint32 timestamp_offset = 11; // offset related to created_at, the real timestamp = created_at + timestamp_offset.
     string author = 13;
     string author_url = 14;
     string agency_id = 15;
